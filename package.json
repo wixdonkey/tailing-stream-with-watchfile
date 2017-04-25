@@ -1,0 +1,19 @@
+{
+  "name": "tailing-stream-with-watchfile",
+  "version": "0.2.1",
+  "main": "tailing-stream-with-watchfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "weilv",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wixdonkey/tailing-stream-with-watchfile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wixdonkey/tailing-stream-with-watchfile/issues"
+  },
+  "homepage": "https://github.com/wixdonkey/tailing-stream-with-watchfile#readme",
+  "description": ""
+}
