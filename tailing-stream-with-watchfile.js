@@ -60,7 +60,6 @@ extend(true, TailingReadableStream, Readable);
 
 // create a new TailingReadableStream and return it
 TailingReadableStream.open = function (path, options) {
-  console.log('---open---');
   options = options || {};
 
   var file = new TailingReadableStream();
@@ -99,17 +98,14 @@ TailingReadableStream.prototype._watch = function () {
 
   fs.watchFile(this._path, {interval:3000}, function (curr, prev) {
       hasBeenChanged = true;
-      console.log('---watchFile--onchange-');
       // reset the kill switch for inactivity on every non-paused change
 
       self._resetTimeoutKillswitch();
 
       // start a new stream if one isn't running and a change happened
-      // if (!self._stream && self.readable && event === 'change') {
       if (!self._stream && self.readable) {
         // send all data from the last byte sent to EOF
         var readOpts = extend(false, {}, self._read_stream_options);
-        console.log('---watchFile--onchange-_offset===' + self._offset);
         readOpts.start = self._offset;
         self._stream = fs.createReadStream(self._path, readOpts);
 
@@ -138,23 +134,18 @@ TailingReadableStream.prototype._watch = function () {
 
     setTimeout(()=>{
       if(!hasBeenChanged){
-        console.log('---nochange---');
 
         fs.unwatchFile(this._path,this);
-        console.log('---nochange---unwatchFile---');
 
         self._resetTimeoutKillswitch();
         // start a new stream if one isn't running and a change happened
         if (!self._stream && self.readable) {
           // send all data from the last byte sent to EOF
-          var readOpts = extend(false, {}, self._read_stream_options);
-          readOpts.start = self._offset;
-          self._stream = fs.createReadStream(self._path, readOpts);
+          self._stream = fs.createReadStream(self._path);
 
           // pipe data through our own event while tracking its progress
           self._stream.on('data', function (data) {
             // track the amount of data that's been read, then forward
-            self._offset += data.length;
             self.emit('data', data)
           });
 
@@ -192,12 +183,10 @@ TailingReadableStream.prototype.setEncoding = function (encoding) {
 
 // pause stream reading for a while
 TailingReadableStream.prototype.pause = function () {
-  console.log('---pause---');
   if (!this._paused) {
     this._paused = true;
 
     fs.unwatchFile(this._path,this);
-    console.log('---pause---unwatchFile---');
 
     // clear the timeout kill switch
     clearTimeout(this._timeoutId);
@@ -212,8 +201,6 @@ TailingReadableStream.prototype.pause = function () {
 
 // resume watching/reading from the file
 TailingReadableStream.prototype.resume = function () {
-  console.log('---resume---');
-  console.log('---resume---this._paused==='+this._paused);
   if (this._paused) {
     this._paused = false;
 
@@ -227,7 +214,6 @@ TailingReadableStream.prototype.resume = function () {
 
 // start checking for changes, clearing any existing checks
 TailingReadableStream.prototype._resetTimeoutKillswitch = function () {
-  console.log('---_resetTimeoutKillswitch---');
   // set a timeout to check for non-activity. setTimeout() is used to allow
   // the user to dynamically change the timeout duration, if desired.
   clearTimeout(this._timeoutId);
@@ -241,7 +227,6 @@ TailingReadableStream.prototype._resetTimeoutKillswitch = function () {
 
 // stop watching/reading the file and stop emitting events
 TailingReadableStream.prototype._destroy = function () {
-  console.log('---_destroy---');
   // pause to stop the watcher and clear the kill switch
   this.pause();
 
@@ -258,7 +243,6 @@ TailingReadableStream.prototype._destroy = function () {
 
 // shut down the stream and emit end and close events
 TailingReadableStream.prototype._timeoutKillswitch = function () {
-  console.log('---_timeoutKillswitch---');
   this._destroy();
   this.emit('end');
   this.emit('close');
@@ -266,7 +250,6 @@ TailingReadableStream.prototype._timeoutKillswitch = function () {
 
 // destroy the stream
 TailingReadableStream.prototype.destroy = function () {
-  console.log('---destroy---');
   this._destroy();
   this.emit('close');
 };
